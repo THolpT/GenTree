@@ -77,23 +77,38 @@ function buildTreeFromArray(data: PersonNode[]): PersonNode | null {
 export default function RadialGenealogy({ data, width = 800, height = 800, layerThickness = 70, innerRadius = 40, minAngle = 0.02, onSelect }: Props) {
   const rootNode = useMemo(() => buildTreeFromArray(data), [data]);
 
+  let maxDepth = 0;
+
   const layoutRoot = useMemo(() => {
     if (!rootNode) return null;
     const makeLayout = (node: PersonNode, parent: LayoutNode | null = null, depth = 0): LayoutNode => {
-      const ln: LayoutNode = {
-        id: node.id,
-        name: node.name,
-        title: node.title,
-        img: node.img,
-        parent,
-        depth,
-        size: 0,
-        children: node.children ? node.children.map(c => makeLayout(c, null, depth + 1)) : [],
+        let children: PersonNode[] = node.children || [];
+        if (depth > maxDepth) maxDepth = depth
+      
+        // допустим, хотим, чтобы каждый узел имел хотя бы N детей
+        if (depth < maxDepth) { // только для настоящих людей
+            const MIN_CHILDREN = 2;
+            while (children.length < MIN_CHILDREN) {
+              children.push({ id: `${node.id}-empty-${children.length}`, name: '', title: '' });
+            }
+          }
+      
+        const ln: LayoutNode = {
+          id: node.id,
+          name: node.name,
+          title: node.title,
+          img: node.img,
+          parent,
+          depth,
+          size: 0,
+          children: children.map(c => makeLayout(c, null, depth + 1)),
+        };
+      
+        ln.children?.forEach(c => c.parent = ln);
+        ln.size = ln.children && ln.children.length > 0 ? ln.children.reduce((s, c) => s + c.size, 0) : 1;
+        return ln;
       };
-      ln.children?.forEach(c => c.parent = ln);
-      ln.size = ln.children && ln.children.length > 0 ? ln.children.reduce((s, c) => s + c.size, 0) : 1;
-      return ln;
-    };
+      
 
     const root = makeLayout(rootNode);
 
@@ -102,7 +117,7 @@ export default function RadialGenealogy({ data, width = 800, height = 800, layer
     const leafAngle = Math.max(minAngle, TAU / total);
 
     const assignAngles = (n: LayoutNode) => {
-      if (!n.children || n.children.length === 0) {
+      if (!n.children?.length) {
         n.startAngle = cursor;
         n.endAngle = cursor + leafAngle;
         cursor += leafAngle;

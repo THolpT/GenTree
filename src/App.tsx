@@ -19,42 +19,12 @@ const orgData = [
   { id: 4, pid: 2, name: 'Elliot Patel', title: 'Sales', img: 'https://cdn.balkan.app/shared/5.jpg' },
   { id: 5, pid: 2, name: 'Lynn Hussain', title: 'Sales', img: 'https://cdn.balkan.app/shared/6.jpg' },
   { id: 6, pid: 3, name: 'Tanner May', title: 'Developer', img: 'https://cdn.balkan.app/shared/7.jpg' },
-  { id: 7, pid: 3, name: 'Fran Parsons', title: 'Developer', img: 'https://cdn.balkan.app/shared/8.jpg' }
+  { id: 7, pid: 3, name: 'Fran Parsons', title: 'Developer', img: 'https://cdn.balkan.app/shared/8.jpg' },
+  { id: 8, pid: 4, name: 'Tanner May', title: 'Developer', img: 'https://cdn.balkan.app/shared/7.jpg' },
+  { id: 9, pid: 4, name: 'Fran Parsons', title: 'Developer', img: 'https://cdn.balkan.app/shared/8.jpg' },
+  { id: 10, pid: 5, name: 'Tanner May', title: 'Developer', img: 'https://cdn.balkan.app/shared/7.jpg' },
+  { id: 11, pid: 5, name: 'Fran Parsons', title: 'Developer', img: 'https://cdn.balkan.app/shared/8.jpg' },
 ]
-
-const familyTree: PersonNode = {
-  id: 'root',
-  name: 'Ancestor',
-  children: [
-    {
-      id: 'a',
-      name: 'Alice',
-      children: [
-        { id: 'a1', name: 'Alice Jr.' },
-        { id: 'a2', name: 'Alfred' },
-      ],
-    },
-    {
-      id: 'b',
-      name: 'Bob',
-      children: [
-        { id: 'b1', name: 'Barbara' },
-        {
-          id: 'b2',
-          name: 'Bill',
-          children: [
-            { id: 'b21', name: 'Ben' },
-            { id: 'b22', name: 'Bella' },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'c',
-      name: 'Charlie',
-    },
-  ],
-};
 
 
 
@@ -114,7 +84,7 @@ function App() {
         <div>Loading chart...</div>
       )}
 
-      {/* <RadialTree data={orgData}></RadialTree> */}
+      <RadialTree data={orgData}></RadialTree>
     </div>
   );
 }
