@@ -23,13 +23,13 @@ type LayoutNode = {
 };
 
 type Props = {
-  data: PersonNode[]; // array format
+  data: PersonNode[];
   width?: number;
   height?: number;
   layerThickness?: number;
   innerRadius?: number;
   minAngle?: number;
-  onSelect?: (node: LayoutNode) => void;
+  onSelect?: (node: PersonNode) => void;
 };
 
 const TAU = Math.PI * 2;
@@ -74,7 +74,7 @@ function buildTreeFromArray(data: PersonNode[]): PersonNode | null {
   return root;
 }
 
-export default function RadialGenealogy({ data, width = 800, height = 800, layerThickness = 70, innerRadius = 40, minAngle = 0.02, onSelect }: Props) {
+export default function FanGenealogy({ data, width = 800, height = 800, layerThickness = 70, innerRadius = 40, minAngle = 0.02, onSelect }: Props) {
   const rootNode = useMemo(() => buildTreeFromArray(data), [data]);
 
   let maxDepth = 0;
@@ -85,8 +85,7 @@ export default function RadialGenealogy({ data, width = 800, height = 800, layer
         let children: PersonNode[] = node.children || [];
         if (depth > maxDepth) maxDepth = depth
       
-        // допустим, хотим, чтобы каждый узел имел хотя бы N детей
-        if (depth < maxDepth) { // только для настоящих людей
+        if (depth < maxDepth) {
             const MIN_CHILDREN = 2;
             while (children.length < MIN_CHILDREN) {
               children.push({ id: `${node.id}-empty-${children.length}`, name: '', title: '' });
@@ -114,7 +113,7 @@ export default function RadialGenealogy({ data, width = 800, height = 800, layer
 
     let cursor = 0;
     const total = root.size;
-    const leafAngle = Math.max(minAngle, TAU / total);
+    const leafAngle = Math.max(minAngle, TAU / total) / 2;
 
     const assignAngles = (n: LayoutNode) => {
       if (!n.children?.length) {
@@ -133,7 +132,7 @@ export default function RadialGenealogy({ data, width = 800, height = 800, layer
     return root;
   }, [rootNode, minAngle]);
 
-  if (!layoutRoot) return <div>No root node found</div>;
+  if (!layoutRoot) return;
 
   const nodes = useMemo(() => {
     const arr: LayoutNode[] = [];
@@ -151,33 +150,14 @@ export default function RadialGenealogy({ data, width = 800, height = 800, layer
   const [hovered, setHovered] = useState<string | number | null>(null);
   const [selected, setSelected] = useState<string | number | null>(null);
 
-  const handleClick = (n: LayoutNode) => {
+  const handleClick = (n: PersonNode) => {
     setSelected(n.id);
     onSelect?.(n);
   };
 
   return (
     <div style={{ width, height }}>
-      <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
-        <g>
-          {nodes.filter(n => n.parent).map(n => {
-            const p = n.parent!;
-            const childAngle = ((n.startAngle ?? 0) + (n.endAngle ?? 0)) / 2;
-            const parentAngle = ((p.startAngle ?? 0) + (p.endAngle ?? 0)) / 2;
-
-            const r1 = innerRadius + layerThickness * (p.depth + 0.7);
-            const r2 = innerRadius + layerThickness * (n.depth - 0.3);
-
-            const s = polarToCartesian(cx, cy, r1, parentAngle);
-            const e = polarToCartesian(cx, cy, r2, childAngle);
-
-            const dx = (e.x - s.x) * 0.4;
-            const dy = (e.y - s.y) * 0.4;
-
-            const path = `M ${s.x} ${s.y} C ${s.x + dx} ${s.y + dy} ${e.x - dx} ${e.y - dy} ${e.x} ${e.y}`;
-            return <path key={n.id} d={path} fill="none" stroke="#aaa" strokeWidth={1} opacity={0.6} />;
-          })}
-        </g>
+      <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} style={{transform: "rotate(270deg)"}}>
 
         <g>
           {nodes.map(n => {
@@ -189,7 +169,7 @@ export default function RadialGenealogy({ data, width = 800, height = 800, layer
 
             const isHovered = hovered === n.id;
             const isSelected = selected === n.id;
-            const fill = isSelected ? "#FFF" : isHovered ? "#F0F0F3" : `#F0F0F3`;
+            const fill = isSelected ? "#FFF" : isHovered ? "#FFF" : `#F0F0F3`;
 
             const mid = (start + end) / 2;
             const labelR = innerR + (outerR - innerR) / 2;
@@ -197,9 +177,9 @@ export default function RadialGenealogy({ data, width = 800, height = 800, layer
 
             return (
               <g key={n.id} onMouseEnter={() => setHovered(n.id)} onMouseLeave={() => setHovered(null)} onClick={() => handleClick(n)} style={{ cursor: 'pointer' }}>
-                <path d={path} fill={fill} stroke="#00002F26" strokeWidth={0.6} />
+                <path d={path} fill={fill} stroke="#00002F26"  strokeWidth={0.6} />
                 {end - start > 0.05 && (
-                  <text x={labelPos.x} y={labelPos.y} fontSize={12} textAnchor="middle" dominantBaseline="middle" style={{ pointerEvents: 'none' }}>
+                  <text transform={`rotate(90, ${labelPos.x}, ${labelPos.y})`} x={labelPos.x} y={labelPos.y} fontSize={12} textAnchor="middle" dominantBaseline="middle" style={{ pointerEvents: 'none' }}>
                     {n.name ?? n.id}
                   </text>
                 )}
@@ -209,8 +189,8 @@ export default function RadialGenealogy({ data, width = 800, height = 800, layer
         </g>
 
         <g>
-          <circle cx={cx} cy={cy} r={innerRadius + 65} fill="#F0F0F3" stroke="#00002F26"/>
-          <text x={cx} y={cy} fill="black" textAnchor="middle" dominantBaseline="middle">
+          <circle cx={cx} cy={cy} r={innerRadius + 65} fill={"" + `${selected == rootNode!.id ? "#FFF" : "#F0F0F3"}`} stroke="#00002F26" onMouseEnter={() => setHovered(rootNode!.id)} onMouseLeave={() => setHovered(null)} onClick={() => handleClick(rootNode!)}/>
+          <text transform={`rotate(90 ${width/2} ${height/2})`} x={cx} y={cy} fill="black" textAnchor="middle" dominantBaseline="middle">
             {rootNode?.name ?? rootNode?.id}
           </text>
         </g>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
 import LeftPanel from './components/LeftPanel';
-import RadialTree, { type PersonNode } from './components/Trees/circularTree';
+import RadialTree, { type PersonNode } from './components/Trees/radialTree';
 
 const familyData = [
   { id: 1, pids: [2], name: 'Amber McKenzie', gender: 'female', img: 'https://cdn.balkan.app/shared/2.jpg' },
