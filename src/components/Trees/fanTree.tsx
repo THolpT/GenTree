@@ -1,41 +1,74 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { type PersonNode, type LayoutNode, buildTreeFromArray, TAU, polarToCartesian, arcPath, type Props } from "./trees.types";
 import * as d3 from "d3";
+import AddUnit from "../add_unit";
+import EditUnit from "../updateUnit";
 
-export default function FanGenealogy({ data, width = 800, height = 800, layerThickness = 70, innerRadius = 40, minAngle = 0.02, onSelect }: Props) {
-  const rootNode = useMemo(() => buildTreeFromArray(data), [data]);
+export default function FanGenealogy({ data, width = 800, height = 800, layerThickness = 70, innerRadius = 40, minAngle = 0.02, onSelect, treeId }: Props) {
+ 
+
+  const findMaxDepth = (node: PersonNode, depth = 0): number => {
+    if (!node.children || node.children.length === 0) return depth;
+    return Math.max(...node.children.map(c => findMaxDepth(c, depth + 1)));
+  };
+
+  const autoExpandTree = (node: PersonNode, depth = 0, maxDepth = 0): PersonNode => {
+    if (depth > maxDepth + 1) return { ...node, children: [] };
+
+    const children = Array.isArray(node.children) ? [...node.children] : [];
+
+    if (depth <= maxDepth) {
+      while (children.length < 2) {
+        children.push({ id: `${node.id}-auto-${depth}-${children.length}`, name: '', title: '', children: [] });
+      }
+    }
+
+    return {
+      ...node,
+      children: children.map(child => autoExpandTree(child, depth + 1, maxDepth))
+    };
+  };
+
+  const rootNode = useMemo(() => {
+    const baseTree = buildTreeFromArray(data);
+  
+    if (!baseTree) {
+      return {
+        id: 'root-auto',
+        name: '',
+        title: '',
+        children: []
+      };
+    }
+  
+    const currentMax = findMaxDepth(baseTree);
+    return autoExpandTree(baseTree, 0, currentMax);
+  }, [data]);
 
   let maxDepth = 0;
 
   const layoutRoot = useMemo(() => {
     if (!rootNode) return null;
+
     const makeLayout = (node: PersonNode, parent: LayoutNode | null = null, depth = 0): LayoutNode => {
-        let children: PersonNode[] = node.children || [];
-        if (depth > maxDepth) maxDepth = depth
-      
-        if (depth < maxDepth) {
-            const MIN_CHILDREN = 2;
-            while (children.length < MIN_CHILDREN) {
-              children.push({ id: `${node.id}-empty-${children.length}`, name: '', title: '' });
-            }
-          }
-      
-        const ln: LayoutNode = {
-          id: node.id,
-          name: node.name,
-          title: node.title,
-          img: node.img,
-          parent,
-          depth,
-          size: 0,
-          children: children.map(c => makeLayout(c, null, depth + 1)),
-        };
-      
-        ln.children?.forEach(c => c.parent = ln);
-        ln.size = ln.children && ln.children.length > 0 ? ln.children.reduce((s, c) => s + c.size, 0) : 1;
-        return ln;
+      let children: PersonNode[] = node.children || [];
+      if (depth > maxDepth) maxDepth = depth;
+
+      const ln: LayoutNode = {
+        id: node.id,
+        name: node.name,
+        title: node.title,
+        img: node.img,
+        parent,
+        depth,
+        size: 0,
+        children: children.map(c => makeLayout(c, null, depth + 1)),
       };
-      
+
+      ln.children?.forEach(c => c.parent = ln);
+      ln.size = ln.children && ln.children.length > 0 ? ln.children.reduce((s, c) => s + c.size, 0) : 1;
+      return ln;
+    };
 
     const root = makeLayout(rootNode);
 
@@ -60,10 +93,9 @@ export default function FanGenealogy({ data, width = 800, height = 800, layerThi
     return root;
   }, [rootNode, minAngle]);
 
-  if (!layoutRoot) return;
-
   const nodes = useMemo(() => {
     const arr: LayoutNode[] = [];
+    if (!layoutRoot) return arr;
     const walk = (n: LayoutNode) => {
       arr.push(n);
       n.children?.forEach(walk);
@@ -72,21 +104,45 @@ export default function FanGenealogy({ data, width = 800, height = 800, layerThi
     return arr;
   }, [layoutRoot]);
 
+  const [hovered, setHovered] = useState<string | number | null>(null);
+  const [selected, setSelected] = useState<string | number | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalNodeId, setModalNodeId] = useState<string | null>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const [transform, setTransform] = useState(d3.zoomIdentity);
+  const [modalMode, setModalMode] = useState<"add" | "edit">("add");
+  
+  if (!layoutRoot) return null;
+  if (nodes.length === 0) return null;
+
+
+
   const cx = width / 2;
   const cy = height / 2;
 
-  const [hovered, setHovered] = useState<string | number | null>(null);
-  const [selected, setSelected] = useState<string | number | null>(null);
-
-  const handleClick = (n: PersonNode) => {
+  const handleClick = (n: LayoutNode) => {
+    if (!n.name) {
+      setModalMode("add");
+      setModalNodeId(n.parent ? n.parent.id : null);
+    } else {
+      setModalMode("edit");
+      setModalNodeId(n.id);
+    }
+  
     setSelected(n.id);
-    onSelect?.(n);
+    setModalOpen(true);
+  
+    onSelect?.(n as unknown as PersonNode);
+  };
+  
+
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setModalNodeId(null);
   };
 
-  const svgRef = useRef<SVGSVGElement>(null);
-  const [transform, setTransform] = useState(d3.zoomIdentity);
-  
-    useEffect(() => {
+  useEffect(() => {
     const zoomBehavior = d3.zoom<SVGSVGElement, unknown>()
       .filter((event) => {
         if (event.type === "wheel") return true;
@@ -95,11 +151,11 @@ export default function FanGenealogy({ data, width = 800, height = 800, layerThi
       })
       .scaleExtent([0.1, 5])
       .on("zoom", (event) => setTransform(event.transform));
-  
+
     d3.select(svgRef.current).call(zoomBehavior as any);
-  
-    }, []);
-const ROTATE = -Math.PI / 2; // -90° в радианах
+  }, []);
+
+const ROTATE = -Math.PI / 2;
 
 return (
   <div style={{ width: "100%", height: "100%" }}>
@@ -148,27 +204,26 @@ return (
       </g>
 
       <g transform={transform.toString()}>
-        <circle
-          cx={cx}
-          cy={cy}
-          r={innerRadius + 65}
-          fill={selected === rootNode!.id ? "#FFF" : "#F0F0F3"}
-          stroke="#00002F26"
-          onMouseEnter={() => setHovered(rootNode!.id)}
-          onMouseLeave={() => setHovered(null)}
-          onClick={() => handleClick(rootNode!)}
-        />
-        <text
-          x={cx}
-          y={cy}
-          fill="black"
-          textAnchor="middle"
-          dominantBaseline="middle"
-        >
-          {rootNode?.name ?? rootNode?.id}
-        </text>
-      </g>
+  <circle
+    cx={cx}
+    cy={cy}
+    r={innerRadius + 65}
+    fill={selected == layoutRoot!.id ? "#FFF" : "#F0F0F3"}
+    stroke="#00002F26"
+    onMouseEnter={() => setHovered(layoutRoot!.id)}
+    onMouseLeave={() => setHovered(null)}
+    onClick={() => handleClick(layoutRoot!)} 
+  />
+  <text x={cx} y={cy} fill="black" textAnchor="middle" dominantBaseline="middle">
+    {layoutRoot?.name ?? layoutRoot?.id}
+  </text>
+</g>
     </svg>
+    {modalMode === "add" ? (
+  <AddUnit isOpen={modalOpen} nodeId={modalNodeId} onClose={handleCloseModal} treeId={treeId} />
+) : (
+  <EditUnit isOpen={modalOpen} nodeId={modalNodeId} onClose={handleCloseModal}/>
+)}
   </div>
 );
 

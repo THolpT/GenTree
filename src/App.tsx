@@ -1,42 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import './App.css';
-import LeftPanel from './components/LeftPanel';
-import OrgTree from './components/Trees/orgTree';
-import { getPersonsFx } from './stores/personStore';
-import type { Person } from './types';
-import RadialTree from './components/Trees/radialTree';
+import EditorPage from './components/Pages/EditorPage';
+import RelativeCard from './components/Pages/RelativeCard';
+import AuthPage from './components/Pages/AuthPage';
+import RegPage from './components/Pages/RegPage';
 
 function App() {
-  const [nds, setNds] = useState<{id: string; pid?: string; name: string; img?: string}[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchPersons() {
-      const persons: Person[] = await getPersonsFx();
-
-      const nodes = persons.map(person => ({
-        id: person.id,
-        pid: person.childId?.toString(),
-        name: person.name,
-        img: person.img || undefined
-      }));
-
-      setNds(nodes);
-      setLoading(false);
-    }
-
-    fetchPersons();
-  }, []);
-
   return (
-    <div className='app'>
-      <LeftPanel />
-      {!loading && nds.length > 0 ? (
-        <RadialTree data={nds} />
-      ) : (
-        <p>Загрузка дерева...</p>
-      )}
+    <BrowserRouter>
+    <div className="app">
+    <Routes>
+      <Route path='/'element={<AuthPage/>} />
+      <Route path='/reg' element={<RegPage/>}/>
+      <Route path='/editor' element={<EditorPage/>}/>
+      <Route path='/persons' element={<RelativeCard/>}/>
+    </Routes>
     </div>
+    </BrowserRouter>
   );
 }
 

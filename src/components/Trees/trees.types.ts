@@ -28,6 +28,7 @@ export type Props = {
   innerRadius?: number;
   minAngle?: number;
   onSelect?: (node: PersonNode) => void;
+  treeId: string
 };
 
 export const TAU = Math.PI * 2;

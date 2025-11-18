@@ -28,7 +28,27 @@ export const deleteUserFx = createEffect(async (id: string) => {
   return id;
 });
 
-// --- Store
+export const loginFx = createEffect(
+  async ({ login, password }: { login: string; password: string }) => {
+    const users = getUsersFx();
+
+    const user = (await users).find(
+      (u) => u.login === login && u.password === password
+    );
+
+    if (!user) {
+      throw new Error("Неверный логин или пароль");
+    }
+
+    return user;
+  }
+);
+
+
+export const $currentUser = createStore<User | null>(null)
+  .on(loginFx.doneData, (_, user) => user)
+  .on(createUserFx.doneData, (_, user) => user);
+
 export const $users = createStore<User[]>([])
   .on(getUsersFx.doneData, (_, users) => users)
   .on(createUserFx.doneData, (state, user) => [...state, user])
@@ -36,3 +56,11 @@ export const $users = createStore<User[]>([])
     state.map(u => (u.id === updated.id ? updated : u))
   )
   .on(deleteUserFx.doneData, (state, id) => state.filter(u => u.id !== id));
+
+  $currentUser.watch((user) => {
+    if (user) {
+      localStorage.setItem("currentUser", JSON.stringify(user));
+    } else {
+      localStorage.removeItem("currentUser");
+    }
+  });
