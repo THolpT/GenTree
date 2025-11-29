@@ -21,6 +21,8 @@ const EditUnit: React.FC<EditUnitProps> = ({ isOpen, nodeId, onClose }) => {
     birthPlace: "",
     deathDate: "",
     deathPlace: "",
+    marriageDate: "",
+    marriagePlace: ""
   });
 
   useEffect(() => {
@@ -30,9 +32,9 @@ const EditUnit: React.FC<EditUnitProps> = ({ isOpen, nodeId, onClose }) => {
       if (!data) return;
 
       setForm({
-        lastName: data.surname ?? "",
-        firstName: data.givenName ?? "",
-        patronymic: "",
+        lastName: data.givenName ?? "",
+        firstName: data.name ?? "",
+        patronymic: data.surname ?? "",
         gender:
           data.gender === Gender.MALE
             ? "male"
@@ -43,6 +45,8 @@ const EditUnit: React.FC<EditUnitProps> = ({ isOpen, nodeId, onClose }) => {
         birthPlace: data.birthPlace ?? "",
         deathDate: data.deathDate ? data.deathDate.split("T")[0] : "",
         deathPlace: data.deathPlace ?? "",
+        marriageDate: data.marriageDate ? data.marriageDate.split("T")[0] : "",
+        marriagePlace: data.marriagePlace ?? ""
       });
     };
     load();
@@ -62,8 +66,8 @@ const EditUnit: React.FC<EditUnitProps> = ({ isOpen, nodeId, onClose }) => {
         id: nodeId,
         data: {
           name: form.firstName,
-          givenName: form.firstName || null,
-          surname: form.lastName || null,
+          givenName: form.lastName || null,
+          surname: form.patronymic || null,
           gender:
             form.gender === "male"
               ? Gender.MALE
@@ -72,6 +76,8 @@ const EditUnit: React.FC<EditUnitProps> = ({ isOpen, nodeId, onClose }) => {
               : Gender.UNKNOWN,
           birthDate: toISO(form.birthDate),
           birthPlace: form.birthPlace || null,
+          marriageDate: toISO(form.marriageDate),
+          marriagePlace: form.marriagePlace || null,
           deathDate: toISO(form.deathDate),
           deathPlace: form.deathPlace || null,
         },
@@ -139,14 +145,14 @@ const EditUnit: React.FC<EditUnitProps> = ({ isOpen, nodeId, onClose }) => {
           <X />
         </button>
 
-        <div style={{ display: "flex", justifyContent: "center", paddingBottom: "15px" }}>
+        {/* <div style={{ display: "flex", justifyContent: "center", paddingBottom: "15px" }}>
           <img
             className="rot"
             style={{ width: "150px", borderRadius: "15px" }}
             src="https://avatars.mds.yandex.net/i?id=7459bbfa751b916ab3cdc2c57a3fc3cadf7ede73-17395776-images-thumbs&n=13"
             alt=""
           />
-        </div>
+        </div> */}
 
         <h2 style={{ display: "flex", justifyContent: "center", paddingBottom: "24px" }}>
           Редактирование
@@ -160,6 +166,7 @@ const EditUnit: React.FC<EditUnitProps> = ({ isOpen, nodeId, onClose }) => {
             flexDirection: "column",
           }}
         >
+                    <label className="modalLabel">Фамилия</label>
           <input
             type="text"
             placeholder="Фамилия"
@@ -173,7 +180,7 @@ const EditUnit: React.FC<EditUnitProps> = ({ isOpen, nodeId, onClose }) => {
             }}
             onChange={(e) => handleChange("lastName", e.target.value)}
           />
-
+          <label className="modalLabel">Имя</label>
           <input
             type="text"
             placeholder="Имя"
@@ -187,7 +194,7 @@ const EditUnit: React.FC<EditUnitProps> = ({ isOpen, nodeId, onClose }) => {
             }}
             onChange={(e) => handleChange("firstName", e.target.value)}
           />
-
+          <label className="modalLabel">Отчество</label>
           <input
             type="text"
             placeholder="Отчество"
@@ -201,7 +208,7 @@ const EditUnit: React.FC<EditUnitProps> = ({ isOpen, nodeId, onClose }) => {
             }}
             onChange={(e) => handleChange("patronymic", e.target.value)}
           />
-
+          <label className="modalLabel">Дата рождения</label>
           <input
             type="date"
             value={form.birthDate}
@@ -214,7 +221,7 @@ const EditUnit: React.FC<EditUnitProps> = ({ isOpen, nodeId, onClose }) => {
             }}
             onChange={(e) => handleChange("birthDate", e.target.value)}
           />
-
+          <label className="modalLabel">Место рождения</label>
           <input
             type="text"
             placeholder="Место рождения"
@@ -228,7 +235,24 @@ const EditUnit: React.FC<EditUnitProps> = ({ isOpen, nodeId, onClose }) => {
             }}
             onChange={(e) => handleChange("birthPlace", e.target.value)}
           />
+                    <label className="modalLabel">Дата свадьбы</label>
+          <input
+            type="date"
+            value={form.marriageDate}
+            placeholder="Дата свадьбы"
+            style={{ backgroundColor: "white", padding: "10px 5px", border: "1px solid #D7D7DF", borderRadius: "5px", marginBottom: "15px" }}
+            onChange={e => handleChange("marriageDate", e.target.value)}
+          />
 
+          <label className="modalLabel">Место свадьбы</label>
+          <input
+            type="text"
+            value={form.marriagePlace}
+            placeholder="Место свадьбы"
+            style={{ backgroundColor: "white", padding: "10px 5px", border: "1px solid #D7D7DF", borderRadius: "5px", marginBottom: "15px" }}
+            onChange={e => handleChange("marriagePlace", e.target.value)}
+          />
+          <label className="modalLabel">Дата смерти</label>
           <input
             type="date"
             value={form.deathDate}
@@ -241,7 +265,7 @@ const EditUnit: React.FC<EditUnitProps> = ({ isOpen, nodeId, onClose }) => {
             }}
             onChange={(e) => handleChange("deathDate", e.target.value)}
           />
-
+          <label className="modalLabel">Место смерти</label>
           <input
             type="text"
             placeholder="Место смерти"

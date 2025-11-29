@@ -46,15 +46,19 @@ const EditorPage = () => {
     (person: any) => person.treeId?.toString() === treeId
   );
 
-  const nds = filteredPersons.map((person: any) => ({
-    id: person.id,
-    pid: person.childId?.toString(),
-    name: person.name,
-    img: person.img || undefined,
-  }));
+  const allIds = new Set(filteredPersons.map(p => p.id));
 
+  const nds = filteredPersons
+    .filter(person => !person.childId || allIds.has(person.childId))
+    .map(person => ({
+      id: person.id,
+      pid: person.childId || undefined,
+      name: person.name,
+      img: person.img || undefined,
+    }));
+  
   const renderTree = () => {
-    if (treeId != null)
+    if (treeId != null && treeId != "")
     switch (treeType) {
       case 'fan':
         return <FanTree data={nds} treeId={treeId}/>;

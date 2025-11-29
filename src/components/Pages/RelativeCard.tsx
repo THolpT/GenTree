@@ -5,6 +5,7 @@ import { $persons, getPersonsFx } from '../../stores/personStore';
 import { useUnit } from 'effector-react';
 import { $currentUser } from '../../stores/userStore';
 import { $trees } from '../../stores/treeStore';
+import EditUnit from '../updateUnit';
 
 const RelativeCard = () => {
   const curUser = useUnit($currentUser);
@@ -14,6 +15,18 @@ const RelativeCard = () => {
 
   const [choosenTree, setChoosenTree] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null);
+
+  const openModal = (id: string) => {
+    setSelectedPersonId(id);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setSelectedPersonId(null);
+  };
 
   useEffect(() => {
     fetchPersons();
@@ -80,11 +93,21 @@ const RelativeCard = () => {
                 <div>{relative.name}</div>
                 <div>{relative.birthDate}</div>
               </div>
-              <button className={styles.openBtn}>Открыть</button>
+              <button
+                className={styles.openBtn}
+                onClick={() => openModal(relative.id)}
+              >
+                Открыть
+              </button>
             </div>
           ))}
         </div>
       </div>
+      <EditUnit
+        isOpen={isModalOpen}
+        nodeId={selectedPersonId}
+        onClose={closeModal}
+      />
     </div>
   );
 };

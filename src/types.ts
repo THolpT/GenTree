@@ -23,6 +23,8 @@ export type Person = {
     gender: Gender,
     birthDate: string | null,
     birthPlace: string | null,
+    marriageDate: string | null,
+    marriagePlace: string | null,
     deathDate: string | null,
     deathPlace: string | null,
     img: string | null,
@@ -45,33 +47,46 @@ type OrgChartNode = {
   img?: string;
 };
 function exportToGedcom(people: Person[]) {
-    let gedcom = "0 HEAD\n1 SOUR ChatGPT Export\n1 GEDC\n2 VERS 5.5.1\n1 CHAR UTF-8\n";
+    let gedcom = "0 HEAD\n1 SOUR GenTree export\n1 GEDC\n2 VERS 5.5.1\n1 CHAR UTF-8\n";
 
     // Сопоставим ID с индексами GEDCOM (например, @I1@, @I2@)
     const idMap = new Map<string, string>();
     people.forEach((p, i) => idMap.set(p.id, `@I${i + 1}@`));
 
     // Создаём список семей (на основе parent-child связей)
-    const families: { familyId: string; husbandId?: string; wifeId?: string; children: string[] }[] = [];
+    const families: { 
+        familyId: string; 
+        husbandId?: string; 
+        wifeId?: string; 
+        children: string[]; 
+        marriageDate?: string;
+        marriagePlace?: string;
+    }[] = [];
 
     // Находим всех, кто имеет childId → значит, это родители
     people.forEach(parent => {
         const child = parent.childId ? people.find(p => p.id === parent.childId) : null;
         if (child) {
-            // Ищем, существует ли уже семья с этим ребёнком
             let fam = families.find(f => f.children.includes(idMap.get(child.id)!));
             if (!fam) {
-                fam = { familyId: `@F${families.length + 1}@`, children: [idMap.get(child.id)!] };
+                fam = { 
+                    familyId: `@F${families.length + 1}@`, 
+                    children: [idMap.get(child.id)!] 
+                };
                 families.push(fam);
             }
-            // Добавляем родителя в семью
+
+            // Добавляем родителя
             if (parent.gender === "MALE") fam.husbandId = idMap.get(parent.id)!;
             else if (parent.gender === "FEMALE") fam.wifeId = idMap.get(parent.id)!;
             else {
-                // неизвестный пол — просто добавим как родителя
                 if (!fam.husbandId) fam.husbandId = idMap.get(parent.id)!;
                 else if (!fam.wifeId) fam.wifeId = idMap.get(parent.id)!;
             }
+
+            // Добавляем данные свадьбы
+            if (parent.marriageDate) fam.marriageDate = parent.marriageDate;
+            if (parent.marriagePlace) fam.marriagePlace = parent.marriagePlace;
         }
     });
 
@@ -97,26 +112,34 @@ function exportToGedcom(people: Person[]) {
             if (p.deathPlace) gedcom += `2 PLAC ${p.deathPlace}\n`;
         }
 
-        // Добавляем связь с семьёй (как ребёнок)
+        // Связь с семьёй (как ребёнок)
         const famAsChild = families.find(f => f.children.includes(ref!));
         if (famAsChild) gedcom += `1 FAMC ${famAsChild.familyId}\n`;
 
-        // Добавляем связь как родителя
+        // Связь как родителя
         const famAsParent = families.find(f => f.husbandId === ref || f.wifeId === ref);
         if (famAsParent) gedcom += `1 FAMS ${famAsParent.familyId}\n`;
     }
 
-    // Добавляем семейные записи
+    // Семейные записи
     for (const fam of families) {
         gedcom += `0 ${fam.familyId} FAM\n`;
         if (fam.husbandId) gedcom += `1 HUSB ${fam.husbandId}\n`;
         if (fam.wifeId) gedcom += `1 WIFE ${fam.wifeId}\n`;
         for (const c of fam.children) gedcom += `1 CHIL ${c}\n`;
+
+        // Добавляем свадьбу, если есть
+        if (fam.marriageDate || fam.marriagePlace) {
+            gedcom += `1 MARR\n`;
+            if (fam.marriageDate) gedcom += `2 DATE ${fam.marriageDate}\n`;
+            if (fam.marriagePlace) gedcom += `2 PLAC ${fam.marriagePlace}\n`;
+        }
     }
 
     gedcom += "0 TRLR\n";
     return gedcom;
 }
+
 
 // 💾 Функция для скачивания файла
 export function downloadGedcom(people: Person[], filename = "family_tree.ged") {

@@ -44,10 +44,14 @@ export const loginFx = createEffect(
   }
 );
 
+const savedUser = localStorage.getItem("currentUser");
 
-export const $currentUser = createStore<User | null>(null)
+export const $currentUser = createStore<User | null>(
+  savedUser ? JSON.parse(savedUser) : null
+)
   .on(loginFx.doneData, (_, user) => user)
   .on(createUserFx.doneData, (_, user) => user);
+
 
 export const $users = createStore<User[]>([])
   .on(getUsersFx.doneData, (_, users) => users)

@@ -25,6 +25,12 @@ export default class Chart extends Component<MyProps, MyState> {
       mode: "add",
     };
   }
+  
+  componentDidUpdate(prevProps: MyProps) {
+    if (prevProps.nodes !== this.props.nodes && this.chart) {
+      this.chart.load(this.props.nodes);
+    }
+  }
 
   async componentDidMount() {
     if (!this.divRef.current) return;
@@ -98,6 +104,7 @@ export default class Chart extends Component<MyProps, MyState> {
 
           evt.stopPropagation?.();
           evt.preventDefault?.();
+          this.chart.load(this.props.nodes);
           return false;
         }
 
@@ -110,12 +117,14 @@ export default class Chart extends Component<MyProps, MyState> {
         selectedNodeId: args.node.id,
         mode: "edit",
       });
+      this.chart.load(this.props.nodes);
 
       return false;
     });
   }
 
   closeModal = () => {
+    this.chart.load(this.props.nodes);
     this.setState({ isModalOpen: false, selectedNodeId: null });
   };
 

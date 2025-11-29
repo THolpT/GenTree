@@ -122,6 +122,7 @@ export default function RadialGenealogy({ data, width = 800, height = 800, layer
   const cy = height / 2;
 
   const handleClick = (n: LayoutNode) => {
+    if (n.parent?.id?.includes('auto')) return
 
     if (!n.name) {
       setModalMode("add");

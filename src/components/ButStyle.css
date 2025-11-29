@@ -75,3 +75,13 @@
   transform: rotateY(360deg);
 }
 
+.modalLabel {
+    background-color: transparent;
+    margin-bottom: 5px;
+    padding: 0;
+    text-align: start;
+    width: 100%;
+    display: block;
+    line-height: 0;
+}
+
