@@ -1,0 +1,119 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
+
+body {
+  font-family: 'Geist';
+}
+
+.cardsGrid {
+  font-family: 'Geist';
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 32px;
+  padding: 40px 24px;
+  justify-items: center;
+}
+
+.card {
+  background: #f4f4f6;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(60, 60, 60, 0.07);
+  width: 240px;
+  height: 230px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px;
+  transition: box-shadow 0.2s;
+  border-width: 3px;
+  /* Добавлено suppress shrink и grow для надежности размера */
+  flex-shrink: 0;
+  flex-grow: 0;
+  box-sizing: border-box; /* Учитывать padding для размера */
+}
+
+.card:hover {
+  box-shadow: 0 4px 16px rgba(60, 60, 60, 0.13);
+}
+
+.avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  background: #e0e2eb;
+  margin-bottom: 18px;
+  flex-shrink: 0; /* Запретить изменение размера */
+  object-fit: cover; /* Если это img - сохранить пропорции */
+  box-sizing: border-box;
+}
+
+.card > div {
+  margin-bottom: 9px;
+  color: #2d2d2d;
+  font-size: 16px;
+}
+
+.openBtn {
+  margin-top: auto; /* Кнопка прижата к низу */
+  width: 100%;
+  background: #32aa60;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 0;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.openBtn:hover {
+  background: #289850;
+}
+
+.titleWithLine {
+  position: relative;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.titleWithLine::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #ccc;
+  border-radius: 1px;
+}
+
+.dropDown {
+  margin-bottom: 23px;
+  padding: 8px;
+  width: 300px;
+  background-color:  #ececec;
+  border-radius: 5px;
+  border-color: #c4cdd8;
+}
+
+hr {
+  border-color: #D2DBE7;
+}
+
+.searchBar {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  width: 220px;
+  font-size: 14px;
+  background-color: #ececec;
+}
+
+.cardTextContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; 
+  align-items: center;    
+  height: 100%;         
+  text-align: center;     
+}

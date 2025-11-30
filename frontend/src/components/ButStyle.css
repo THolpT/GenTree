@@ -1,0 +1,87 @@
+.wobble {
+    background-color: #E2E2E8;
+    border: none;
+    border-radius: 4px;
+    color: #D25652;
+    padding: 8px 130px;
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+
+.wobble:hover {
+    animation: wobble 0.8s;
+}
+.wobble:not(:hover) {
+    animation: wobbleOut 0.8s;
+}
+
+@keyframes wobble {
+    0%,
+    100% {
+        transform: translateX(0%);
+    }
+    15% {
+        transform: translateX(-3%) rotate(-1deg);
+    }
+    30% {
+        transform: translateX(3%) rotate(2deg);
+    }
+    45% {
+        transform: translateX(-3%) rotate(-3deg);
+    }
+    60% {
+        transform: translateX(3%) rotate(2deg);
+    }
+    75% {
+        transform: translateX(0%) rotate(-1deg);
+    }
+}
+
+@keyframes wobbleOut {
+    0% {
+        transform: translateX(0%) rotate(0deg);
+    }
+    15% {
+        transform: translateX(-2%) rotate(-1deg);
+    }
+    30% {
+        transform: translateX(3%) rotate(2deg);
+    }
+    45% {
+        transform: translateX(-3%) rotate(-3deg);
+    }
+    60% {
+        transform: translateX(3%) rotate(2deg);
+    }
+    75% {
+        transform: translateX(-3%) rotate(-1deg);
+    }
+    100% {
+        transform: translateX(0%) rotate(0deg);
+    }
+}
+.rot {
+    transition: 0.8s;
+      transform: rotateY(0deg);  
+}
+.rot:hover {
+    transition: 0.8s;
+  transform: rotateY(360deg);
+}
+
+.modalLabel {
+    background-color: transparent;
+    margin-bottom: 5px;
+    padding: 0;
+    text-align: start;
+    width: 100%;
+    display: block;
+    line-height: 0;
+}
+

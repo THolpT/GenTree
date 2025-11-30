@@ -1,0 +1,104 @@
+* {
+    margin: 0;
+}
+
+.leftPanel {
+    background-color: #F0F0F3;
+    color: black;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 0 32px;
+    align-items: center;
+    align-content: center;
+    border-right: #D2DBE7 1px solid;
+    
+}
+
+.leftPanel>div {
+    width: min-content;
+    margin-top: 40px;
+}
+
+.li {
+    display: flex;
+    flex-direction: row;
+    list-style: none;
+    align-items: center;
+    gap: 16px;
+    transition: 0.5s;
+    width: 235px;
+    border-radius: 6px;
+    padding: 8px 8px;
+    font-size: 16px;
+    line-height: 24px;
+    text-decoration: none;
+    color: rgb(36, 36, 36);
+}
+
+.li:hover {
+    background-color: #DCDCDC;
+}
+
+.quickMenu>ul {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.logo {
+    font-size: 28px;
+    line-height: 36px;
+    font-weight: bold;
+    padding-bottom: 12px;
+    border-bottom: #D2DBE7 1px solid;
+}
+
+.li span {
+    font-size: 32px;
+    color: black;
+    font-weight: bold;
+    padding-bottom: 6px;
+}
+
+.menuContainer {
+    width: 24px;
+    height: 24px;
+    line-height: 0px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.treeIcon {
+    width: 24px;
+    height: 24px;
+}
+
+.quickMenu {
+    display: flex;
+    flex-direction: row;
+    padding-top: 12px;
+    padding-bottom: 24px;
+    border-bottom: #D2DBE7 1px solid;
+}
+
+.quickTree {
+    display: flex;
+    flex-direction: column;
+    padding-top: 24px;
+}
+
+.quickTree>h3 {
+    margin-bottom: 24px;
+    font-size: 20px;
+}
+
+.quickTree>div {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
