@@ -121,6 +121,8 @@ export default function FanGenealogy({ data, width = 800, height = 800, layerThi
   const cy = height / 2;
 
   const handleClick = (n: LayoutNode) => {
+    if (n.parent?.id?.includes('auto')) return
+
     if (!n.name) {
       setModalMode("add");
       setModalNodeId(n.parent ? n.parent.id : null);
@@ -131,7 +133,6 @@ export default function FanGenealogy({ data, width = 800, height = 800, layerThi
   
     setSelected(n.id);
     setModalOpen(true);
-  
     onSelect?.(n as unknown as PersonNode);
   };
   
