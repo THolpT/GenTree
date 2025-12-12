@@ -13,6 +13,7 @@ import orgTreeIcon from '../../assets/Group 48095341.svg'
 import radTreeIcon from '../../assets/Group 48095342.svg'
 import { downloadGedcom, type Tree } from '../../types';
 import { $trees, getTreeByIdFx, updateTreeFx } from '../../stores/treeStore';
+import { Gedcom} from '../Gedcom';
 
 const EditorPage = () => {
   const [params] = useSearchParams();
@@ -86,10 +87,8 @@ const EditorPage = () => {
         </div>
       </div>
 
-      <div className="port-container">
-        <button onClick={() => downloadGedcom(filteredPersons)}>Export</button>
-      </div>
-
+        <Gedcom treeId={treeId} filteredPersons={filteredPersons}/>
+        
       {renderTree()}
     </div>
   );

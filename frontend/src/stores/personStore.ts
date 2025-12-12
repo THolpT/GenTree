@@ -11,6 +11,14 @@ export const deletePersonFx = createEffect(async (id: string) => {
   return id;
 });
 
+export const importGedcomFx = createEffect(
+  async ({ treeId, file }: { treeId: string; file: File }) => {
+    const res = await personApi.uploadGedcom(treeId, file);
+    return res.data;
+  }
+);
+
+
 export const $persons = createStore<Person[]>([])
   .on(getPersonsFx.doneData, (_, data) => data)
   .on(createPersonFx.doneData, (state, p) => [...state, p])

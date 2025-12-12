@@ -60,6 +60,10 @@ const EditUnit: React.FC<EditUnitProps> = ({ isOpen, nodeId, onClose }) => {
 
   const onSave = useCallback(async () => {
     try {
+      if (!form.firstName?.trim()) {
+        alert("Введите имя");
+        throw new Error();
+      }
       if (!nodeId) return;
 
       await updatePersonFx({
@@ -180,7 +184,7 @@ const EditUnit: React.FC<EditUnitProps> = ({ isOpen, nodeId, onClose }) => {
             }}
             onChange={(e) => handleChange("lastName", e.target.value)}
           />
-          <label className="modalLabel">Имя</label>
+          <label className="modalLabel">Имя <span style={{color: "red"}}>*</span></label>
           <input
             type="text"
             placeholder="Имя"

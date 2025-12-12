@@ -123,7 +123,7 @@ export default function FanGenealogy({ data, width = 800, height = 800, layerThi
   const handleClick = (n: LayoutNode) => {
     if (n.parent?.id?.includes('auto')) return
 
-    if (!n.name) {
+    if (n.id?.includes('auto')) {
       setModalMode("add");
       setModalNodeId(n.parent ? n.parent.id : null);
     } else {

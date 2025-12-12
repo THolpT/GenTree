@@ -1,4 +1,4 @@
-import { svg } from "d3";
+import { color, svg } from "d3";
 import React, { useCallback } from "react";
 import './ButStyle.css'
 import { createPersonFx, deletePersonFx, getPersonByIdFx, updatePersonFx } from "../stores/personStore";
@@ -35,6 +35,11 @@ const AddUnit: React.FC<NodeModalProps> = ({ isOpen, nodeId, onClose, onEdit, tr
 
   const onAdd = useCallback(async (data: any) => {
     try {
+      if (!data.firstName?.trim()) {
+        alert("Введите имя");
+        throw new Error();
+      }
+      
       let childId: string | null = null;
 
       if (nodeId) {
@@ -133,7 +138,7 @@ const AddUnit: React.FC<NodeModalProps> = ({ isOpen, nodeId, onClose, onEdit, tr
         <div style={{ display: "flex", justifyContent: "center", gap: "5px", flexDirection: "column" }}>
           <label className="modalLabel">Фамилия</label>
           <input type="tel" placeholder="Фамилия" style={{ backgroundColor: "white", padding: "10px 5px", border: "1px solid #D7D7DF", borderRadius: "5px", marginBottom: "15px" }} onChange={e => handleChange("lastName", e.target.value)} />
-          <label className="modalLabel">Имя</label>
+          <label className="modalLabel">Имя <span style={{color: "red"}}>*</span></label>
           <input type="tel" placeholder="Имя" style={{ backgroundColor: "white", padding: "10px 5px", border: "1px solid #D7D7DF", borderRadius: "5px", marginBottom: "15px" }} onChange={e => handleChange("firstName", e.target.value)} />
           <label className="modalLabel">Отчество</label>
           <input type="tel" placeholder="Отчество" style={{ backgroundColor: "white", padding: "10px 5px", border: "1px solid #D7D7DF", borderRadius: "5px", marginBottom: "15px" }} onChange={e => handleChange("patronymic", e.target.value)}/>

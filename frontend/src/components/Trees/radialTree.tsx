@@ -124,7 +124,7 @@ export default function RadialGenealogy({ data, width = 800, height = 800, layer
   const handleClick = (n: LayoutNode) => {
     if (n.parent?.id?.includes('auto')) return
 
-    if (!n.name) {
+    if (n.id?.includes('auto')) {
       setModalMode("add");
       setModalNodeId(n.parent ? n.parent.id : null);
     } else {
@@ -161,7 +161,7 @@ export default function RadialGenealogy({ data, width = 800, height = 800, layer
 
   return (
     <div style={{ width: "100%", height: "100%" }}>
-      <svg ref={svgRef} width="100%" height="100%" viewBox={`0 0 ${width} ${height}`}>
+      <svg ref={svgRef} width="100%" height="100%" viewBox={`0 0 ${width} ${height}`} id="svg">
         <g transform={transform.toString()}>
           {nodes.map(n => {
             const innerR = innerRadius + n.depth * layerThickness;
